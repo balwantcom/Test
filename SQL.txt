@@ -1,0 +1,101 @@
+
+create TABLE Registration 
+(
+UserID int IDENTITY(1,1) primary key,
+FirstName NVARCHAR(100),
+LastName  NVARCHAR(100),
+OrganizationName NVARCHAR(100) UNIQUE,
+Email NVARCHAR(100) UNIQUE,
+EmailVerification [bit] NULL, 
+Password NVARCHAR(100),
+ActivetionCode  NVARCHAR(max),
+CreateDate datetime default getdate()
+)
+
+Go
+
+
+CREATE TABLE AuthorsDetail
+(
+SNo int,
+Name NVARCHAR(100),
+DocumentUpload NVARCHAR(100),
+BooKDescription NVARCHAR(max),
+NumberofAuthors NVARCHAR(100),
+Remark NVARCHAR(100),
+CreateDate NVARCHAR(100) default getdate()
+
+)
+Go
+
+CREATE procedure [dbo].[ProRegistration]
+
+(
+  @FirstName Nvarchar(50),
+  @LastName Nvarchar(50),
+  @OrganizationName Nvarchar(50),
+  @Email Nvarchar(50),
+  @EmailVerification bit,
+  @Password Nvarchar(50),
+  @ActivetionCode NVARCHAR(100),
+  @ERROR VARCHAR(100) OUTPUT 
+)
+as
+begin
+ if not exists (select Email from Registration where Email= @Email)
+  begin
+  insert into Registration (FirstName,LastName, OrganizationName, Email, EmailVerification, Password, ActivetionCode) values ( @FirstName, @LastName, @OrganizationName, @Email,@EmailVerification,@Password,@ActivetionCode)
+  SET @ERROR = @FirstName + ' Registered Successfully'
+  end
+  else
+  begin
+   SET @ERROR = @Email + ' Alredy Exists.'
+  end 
+end
+
+
+Go
+
+CREATE PROC Sp_Login
+@email NVARCHAR(100),
+@Password NVARCHAR(100),
+@Isvalid BIT OUT
+AS
+BEGIN
+SET @Isvalid = (SELECT COUNT(1) FROM registration WHERE Email = @email AND Password=@Password)
+end
+
+Go
+
+
+
+Create procedure [dbo].[SP_InsertAuthor]
+
+(
+  @Name Nvarchar(50),
+  @DocumentUpload Nvarchar(50),
+  @BooKDescription Nvarchar(50),
+  @NumberofAuthors Nvarchar(50),
+  @Remark Nvarchar(50),
+ @ERROR VARCHAR(100) OUTPUT 
+)
+as
+begin
+ if not exists (select Name from AuthorsDetail where Name= @Name)
+  begin
+  insert into AuthorsDetail (Name,DocumentUpload, BooKDescription, NumberofAuthors,Remark) values ( @Name, @DocumentUpload, @BooKDescription, @NumberofAuthors,@Remark)
+    SET @ERROR = @Name + ' Author Successfully'
+  end
+  else
+  begin
+   SET @ERROR = @Name + ' Alredy Exists.'
+  end 
+end
+
+Go
+create procedure [dbo].[sp_GetAuthorDetails]  
+
+as  
+begin  
+select Name, DocumentUpload, BooKDescription, NumberofAuthors,Remark from AuthorsDetail
+end 
